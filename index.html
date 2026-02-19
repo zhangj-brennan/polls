@@ -6,56 +6,132 @@
 <title>Data filtering test</title>
 
 <style>
-  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 16px; }
-  h1 { font-size: 18px; margin: 0 0 12px; }
+/* =========================
+   Base / Typography
+========================= */
+@font-face {
+  font-family: "Benton";
+  src: url("Benton Sans/Benton Sans Book.otf");
+}
+@font-face {
+  font-family: "BentonStrong";
+  src: url("Benton Sans/Benton Sans Bold.otf");
+}
 
-  .topbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
-  .panel { border: 1px solid #ddd; border-radius: 0px; padding: 12px; }
-  .panel h2 { font-size: 13px; margin: 0 0 8px; color: #444;float:top; }
-  .btns { display: flex; flex-wrap: wrap; gap: 8px; }
+:root {
+  /* Fallback used when a topic is not in SUBJECT_COLORS */
+  --subject-color-default: #777;
+}
 
-  button.filter {
-    border: 1px solid #ccc; background: #fff; padding: 6px 10px; border-radius: 0px;
-    cursor: pointer; font-size: 12px; line-height: 1.2;
-  }
-  button.filter[aria-pressed="true"] { border-color: #000; background: #000; color: #fff;}
-  button.filter[disabled] { opacity: 0.35; cursor: not-allowed; }
+body {
+  font-family: "Benton", -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  margin: 16px;
+}
 
-  input[type="search"] { padding: 6px 10px; border: 1px solid #ccc; border-radius: 0px; min-width: 240px; }
+h1 {
+  font-size: 24px;
+  margin: 0 0 12px;
+  font-family: "BentonStrong";
+}
 
-  table { border-collapse: collapse;  max-width: 800px;
-  width: 100%; margin-top: 14px; 
- margin-left: auto;
-  margin-right: auto;}
+a {
+  color: #007194;
+  text-decoration: none;
+}
+
+/* =========================
+   Topbar / Panels
+========================= */
+.topbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.panel {
+  font-family: "BentonStrong";
+  /* border: 1px solid #ddd; */
+  border-radius: 0px;
+  padding: 12px;
+}
+
+.panel h2 {
+  font-size: 14px;
+  margin: 0 0 8px;
+  color: #444;
+}
+
+.btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* =========================
+   Controls
+========================= */
+button.filter {
+  border: 1px solid #ccc;
+  background: #fff;
+  padding: 6px 12px;
+  border-radius: 0px;
+  cursor: pointer; 
+  text-align:left;
+  max-width:200px;
   
-  th, td { border-bottom: 1px solid #eee; padding: 8px; text-align: left; vertical-align: top; font-size: 13px; }
-  th { background: #fafafa; position: sticky; top: 0; }
-  .meta { font-size: 12px; color: #666; }
-  .hidden { display: none; }
+}
 
-  .filter-panels {
+button.filter[aria-pressed="true"] {
+  border-color: #000;
+  background: #000;
+  color: #fff;
+}
+
+button.filter[disabled] {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+input[type="search"] {
+  padding: 6px 10px;
+  /* border: 1px solid #ccc; */
+  border-radius: 0px;
+}
+
+.meta {
+  font-size: 12px;
+  color: #666;
+}
+
+.hidden {
+  display: none;
+}
+
+/* =========================
+   Sticky wrapper (your top bar)
+========================= */
+.filter-panels {
   position: sticky;
   top: 0;
   z-index: 10;
   background: white;
-  padding-top: 8px;
-  padding-bottom: 8px;
+  padding: 8px 0;
 }
-/* Sticky container */
+
+/* Sticky container layout */
 .compact-sticky {
   position: sticky;
   top: 0;
   z-index: 20;
   background: white;
   padding: 6px;
-  border-bottom: 1px solid #eee;
-  gap: 6px;
-}
+  border-bottom: 3px solid #000;
 
-/* Replace your flex topbar with a tight grid layout */
-.compact-sticky {
   display: grid;
   grid-template-rows: auto auto;
+  gap: 6px;
 }
 
 /* Row 1: controls */
@@ -66,7 +142,6 @@
   align-items: center;
 }
 
-/* Make controls smaller */
 .compact-sticky .controls .filter,
 .compact-sticky .controls input[type="search"] {
   padding: 4px 8px;
@@ -78,56 +153,109 @@
   min-width: 0; /* allow it to shrink */
 }
 
-/* Row 2: filters (3 panels in a row, tight) */
+/* Row 2: filters */
 .compact-sticky .filters {
   display: grid;
-  grid-template-columns: 1.3fr 1.3fr 0.7fr; /* Year narrower */
+  grid-template-columns: .6fr 1fr 0.3fr; /* Year narrower */
   gap: 6px;
   align-items: start;
 }
 
-/* Tight panels */
+/* Compact panels inside sticky */
 .compact-sticky .panel {
-  border: 1px solid #ddd;
-  border-radius: 0px;
   padding: 6px;
-  min-width: 0; /* allows shrinking */
+  min-width: 0;
 }
 
-/* Smaller panel titles */
 .compact-sticky .panel h2 {
-  font-size: 11px;
+  font-size: 16px;
   margin: 0 0 4px;
   color: #444;
   line-height: 1.1;
 }
 
-/* Button container: tighter wrap */
 .compact-sticky .btns {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
+  gap: 8px;
 }
 
-/* Smaller filter buttons (inside panels only) */
 .compact-sticky .panel .filter {
-  padding: 3px 6px;
-  font-size: 11px;
-  line-height: 1.1;
+  font-family:"BentonStrong"
+  padding: 6px 6px;
+  font-size: 12px;
+  line-height: 1.25;
   border-radius: 0px;
 }
 
-/* Optional: keep Year buttons extra compact */
 .compact-sticky .panel.year .filter {
   padding: 3px 5px;
 }
 
-/* On narrow screens, stack filters */
+/* =========================
+   SUBJECT COLOR SYSTEM
+   - Buttons (Topic panel)
+   - Table rows + Topic cell
+========================= *//* Topic buttons: default (colored background) */
+button.filter.subject-colored {
+  background: var(--subject-color, var(--subject-color-default));
+  /* border: 1px solid var(--subject-color, var(--subject-color-default)); */
+  color: #fff;
+}
+
+/* Selected state: strong black outline */
+button.filter.subject-colored[aria-pressed="true"] {
+  outline: 2px solid #000;
+  outline-offset: 0px;
+}
+
+/* Disabled topic buttons */
+button.filter.subject-colored[disabled] {
+  opacity: 0.35;
+  filter: grayscale(100%);
+}
+
+
+
+/* Table */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  max-width: 800px;
+  margin-top: 14px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+th,
+td {
+  border-bottom: 1px solid #000;
+  padding: 8px;
+  text-align: left;
+  vertical-align: top;
+  font-size: 13px;
+}
+
+th {
+  background: #fff;
+  position: sticky;
+  top: 0;
+  font-family: "BentonStrong";
+}
+
+/* Make the Topic cell itself colored + slightly stronger */
+td.topic-cell {
+  font-family: "BentonStrong";
+  color: var(--subject-color, var(--subject-color-default));
+}
+
+/* =========================
+   Responsive
+========================= */
 @media (max-width: 780px) {
   .compact-sticky .controls {
     grid-template-columns: auto 1fr;
     grid-template-rows: auto auto;
   }
+
   .compact-sticky #count { justify-self: end; }
   .compact-sticky #downloadAll { justify-self: end; }
 
@@ -135,37 +263,63 @@
     grid-template-columns: 1fr;
   }
 }
+/* Sticky bar stays full width */
+.compact-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: white;
+  border-bottom: none;
+  padding: 6px 0;          /* vertical only */
+}
 
+/* Centered 800px content inside sticky */
+.topbar-inner {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 12px;         /* side breathing room on small screens */
+  display: grid;
+  grid-template-rows: auto auto;
+  gap: 6px;
+    border-bottom: 3px solid #000;
 
+}
+.controls{
+  margin-bottom:10px;
+}
 </style>
 </head>
 
 <body>
 <div class="topbar filter-panels compact-sticky">
-<h1>Poll Aggregator Test 1 Data is placeholder</h1>
-  <div class="controls">
-    <button id="clearAll" class="filter">Clear</button>
-    <!-- <input id="search" type="search" placeholder="Search…" /> -->
-    <div id="count" class="meta"></div>
-    <a id="downloadAll" class="filter" href="#" download="full_dataset.csv">Download CSV</a>
+  <div class="topbar-inner">
+    <h1>Poll Aggregator Test 1 Data is placeholder</h1>
+    
+
+    <div class="filters">
+      <div class="panel topic-panel">
+        <h2>Section</h2>
+        <div id="topicBtns" class="btns"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Theme</h2>
+        <div id="subtopicBtns" class="btns"></div>
+      </div>
+
+      <div class="panel year">
+        <h2>Year</h2>
+        <div id="yearBtns" class="btns"></div>
+      </div>
+    </div>
+    <div class="controls">
+      <button id="clearAll" class="filter">Clear Filters</button>
+      <!-- <input id="search" type="search" placeholder="Search…" /> -->
+      <div id="count" class="meta"></div>
+      <a id="downloadAll" class="filter" href="#" download="full_dataset.csv">Download CSV</a>
+    </div>
   </div>
 
-  <div class="filters">
-    <div class="panel">
-      <h2>Topic</h2>
-      <div id="topicBtns" class="btns"></div>
-    </div>
-
-    <div class="panel">
-      <h2>Subtopic</h2>
-      <div id="subtopicBtns" class="btns"></div>
-    </div>
-
-    <div class="panel year">
-      <h2>Year</h2>
-      <div id="yearBtns" class="btns"></div>
-    </div>
-  </div>
 </div>
 
 
@@ -197,6 +351,20 @@ const KEEP_OTHER_COLUMNS = ["Description"
   // "Title",
   // "Text"
 ];
+
+// =======================
+// SUBJECT COLOR SYSTEM (EDIT THESE 3)
+// =======================
+const SUBJECT_COLORS = {
+  "Public opinion on ethics reform": "#3995B2",
+  "Public opinion on life tenure": "#007194",
+  "Public opinion of the Supreme Court as an institution": "#00415B"
+};
+const DEFAULT_SUBJECT_COLOR = "#777";
+
+function subjectColor(subject) {
+  return SUBJECT_COLORS[subject] || DEFAULT_SUBJECT_COLOR;
+}
 
 // =======================
 // State
@@ -403,22 +571,53 @@ function renderButtons(container, allValues, dimKey, countsMap) {
     // If pressed, allow un-pressing even if count is 0 under other filters
     const disabled = DISABLE_ZERO_COUNT_BUTTONS ? (!pressed && count === 0) : false;
 
-    container.appendChild(
-      makeButton(v, count, pressed, disabled, () => toggle(dimKey, v))
-    );
+    const btn = makeButton(v, count, pressed, disabled, () => toggle(dimKey, v));
+
+    // ✅ Subject color system: apply ONLY to Topic buttons
+    if (dimKey === "topic") {
+      const c = subjectColor(v);
+      btn.classList.add("subject-colored");
+      btn.style.setProperty("--subject-color", c);
+      btn.setAttribute("data-subject", v);
+    }
+
+    container.appendChild(btn);
   }
 }
+
 function renderTable(rows) {
   els.tbody.innerHTML = "";
 
   for (const d of rows) {
     const tr = document.createElement("tr");
 
-    ["year","topic","subtopic"].forEach(k => {
+    // ✅ Subject color system: use Topic as the "subject"
+    const c = subjectColor(d.topic);
+    tr.style.setProperty("--subject-color", c);
+    tr.setAttribute("data-subject", d.topic);
+
+    // Year
+    {
       const td = document.createElement("td");
-      td.textContent = d[k];
+      td.textContent = d.year;
       tr.appendChild(td);
-    });
+    }
+
+    // Topic (colored)
+    {
+      const td = document.createElement("td");
+      td.textContent = d.topic;
+      td.className = "topic-cell";
+      // color is driven by CSS var --subject-color
+      tr.appendChild(td);
+    }
+
+    // Subtopic
+    {
+      const td = document.createElement("td");
+      td.textContent = d.subtopic;
+      tr.appendChild(td);
+    }
 
     const tdOther = document.createElement("td");
     tdOther.innerHTML = Object.entries(d.others)
@@ -436,7 +635,6 @@ function renderTable(rows) {
   }
 }
 
-
 function update() {
   const filtered = filterData();
 
@@ -452,7 +650,7 @@ function update() {
 
   renderTable(filtered);
 
-  els.count.textContent = `${filtered.length.toLocaleString()} / ${state.data.length.toLocaleString()} rows`;
+  els.count.textContent = ` Showing ${filtered.length.toLocaleString()} of ${state.data.length.toLocaleString()} polls`;
   els.table.classList.toggle("hidden", state.data.length === 0);
 }
 
@@ -462,6 +660,7 @@ function toggle(dim, val) {
   else set.add(val);
   update();
 }
+
 function clearAll() {
   state.filters.year.clear();
   state.filters.topic.clear();
@@ -485,7 +684,6 @@ async function init() {
     console.error(err);
   }
 }
-
 
 els.clearAll.addEventListener("click", clearAll);
 
