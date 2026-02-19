@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Crossfilter (Persistent Buttons)</title>
+
+<style>
+  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 16px; }
+  h1 { font-size: 18px; margin: 0 0 12px; }
+
+  .topbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+  .panel { border: 1px solid #ddd; border-radius: 0px; padding: 12px; }
+  .panel h2 { font-size: 13px; margin: 0 0 8px; color: #444;float:top; }
+  .btns { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  button.filter {
+    border: 1px solid #ccc; background: #fff; padding: 6px 10px; border-radius: 0px;
+    cursor: pointer; font-size: 12px; line-height: 1.2;
+  }
+  button.filter[aria-pressed="true"] { border-color: #000; background: #000; color: #fff;}
+  button.filter[disabled] { opacity: 0.35; cursor: not-allowed; }
+
+  input[type="search"] { padding: 6px 10px; border: 1px solid #ccc; border-radius: 0px; min-width: 240px; }
+
+  table { border-collapse: collapse;  max-width: 800px;
+  width: 100%; margin-top: 14px; 
+ margin-left: auto;
+  margin-right: auto;}
+  
+  th, td { border-bottom: 1px solid #eee; padding: 8px; text-align: left; vertical-align: top; font-size: 13px; }
+  th { background: #fafafa; position: sticky; top: 0; }
+  .meta { font-size: 12px; color: #666; }
+  .hidden { display: none; }
+
+  .filter-panels {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: white;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+/* Sticky container */
+.compact-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: white;
+  padding: 6px;
+  border-bottom: 1px solid #eee;
+  gap: 6px;
+}
+
+/* Replace your flex topbar with a tight grid layout */
+.compact-sticky {
+  display: grid;
+  grid-template-rows: auto auto;
+}
+
+/* Row 1: controls */
+.compact-sticky .controls {
+  display: grid;
+  grid-template-columns: auto minmax(140px, 1fr) auto auto;
+  gap: 6px;
+  align-items: center;
+}
+
+/* Make controls smaller */
+.compact-sticky .controls .filter,
+.compact-sticky .controls input[type="search"] {
+  padding: 4px 8px;
+  font-size: 12px;
+  line-height: 1.1;
+}
+
+.compact-sticky .controls input[type="search"] {
+  min-width: 0; /* allow it to shrink */
+}
+
+/* Row 2: filters (3 panels in a row, tight) */
+.compact-sticky .filters {
+  display: grid;
+  grid-template-columns: 1.3fr 1.3fr 0.7fr; /* Year narrower */
+  gap: 6px;
+  align-items: start;
+}
+
+/* Tight panels */
+.compact-sticky .panel {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 6px;
+  min-width: 0; /* allows shrinking */
+}
+
+/* Smaller panel titles */
+.compact-sticky .panel h2 {
+  font-size: 11px;
+  margin: 0 0 4px;
+  color: #444;
+  line-height: 1.1;
+}
+
+/* Button container: tighter wrap */
+.compact-sticky .btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+/* Smaller filter buttons (inside panels only) */
+.compact-sticky .panel .filter {
+  padding: 3px 6px;
+  font-size: 11px;
+  line-height: 1.1;
+  border-radius: 999px;
+}
+
+/* Optional: keep Year buttons extra compact */
+.compact-sticky .panel.year .filter {
+  padding: 3px 5px;
+}
+
+/* On narrow screens, stack filters */
+@media (max-width: 780px) {
+  .compact-sticky .controls {
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+  }
+  .compact-sticky #count { justify-self: end; }
+  .compact-sticky #downloadAll { justify-self: end; }
+
+  .compact-sticky .filters {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+</style>
+</head>
+
+<body>
+<h1>Poll Aggregator Test 1 Data is placeholder</h1>
+<div class="topbar filter-panels compact-sticky">
+  <div class="controls">
+    <button id="clearAll" class="filter">Clear</button>
+    <!-- <input id="search" type="search" placeholder="Search…" /> -->
+    <div id="count" class="meta"></div>
+    <a id="downloadAll" class="filter" href="#" download="full_dataset.csv">Download CSV</a>
+  </div>
+
+  <div class="filters">
+    <div class="panel">
+      <h2>Topic</h2>
+      <div id="topicBtns" class="btns"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Subtopic</h2>
+      <div id="subtopicBtns" class="btns"></div>
+    </div>
+
+    <div class="panel year">
+      <h2>Year</h2>
+      <div id="yearBtns" class="btns"></div>
+    </div>
+  </div>
+</div>
+
+
+<table id="table" class="hidden">
+  <thead>
+    <tr>
+      <th style="width:40px">Year</th>
+      <th style="width:120px">Topic</th>
+      <th style="width:80px">Subtopic</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+
+<script>
+// =======================
+// CONFIG
+// =======================
+const CSV_PATH = "./data.csv"; // resolves to /polls/data.csv from /polls/index.html
+
+// keep 0-count buttons visible but disabled?
+const DISABLE_ZERO_COUNT_BUTTONS = true;
+
+// NEW: only keep these non-filter columns (case-insensitive match to CSV headers)
+const KEEP_OTHER_COLUMNS = ["Description"
+  // Examples:
+  // "Links",
+  // "Title",
+  // "Text"
+];
+
+// =======================
+// State
+// =======================
+const state = {
+  data: [],
+  others: [],
+  // All unique values from full dataset (persistent buttons)
+  allYears: [],
+  allTopics: [],
+  allSubtopics: [],
+  filters: {
+    year: new Set(),
+    topic: new Set(),
+    subtopic: new Set(),
+    search: ""
+  }
+};
+
+const els = {
+  clearAll: document.getElementById("clearAll"),
+  search: document.getElementById("search"),
+  count: document.getElementById("count"),
+  yearBtns: document.getElementById("yearBtns"),
+  topicBtns: document.getElementById("topicBtns"),
+  subtopicBtns: document.getElementById("subtopicBtns"),
+  table: document.getElementById("table"),
+  tbody: document.getElementById("tbody"),
+};
+
+// =======================
+// CSV parsing
+// =======================
+function parseCSV(text) {
+  const rows = [];
+  let row = [], field = "", inQuotes = false;
+
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+
+    if (inQuotes) {
+      if (c === '"' && text[i + 1] === '"') { field += '"'; i++; }
+      else if (c === '"') inQuotes = false;
+      else field += c;
+    } else {
+      if (c === '"') inQuotes = true;
+      else if (c === ",") { row.push(field); field = ""; }
+      else if (c === "\n") { row.push(field); rows.push(row); row = []; field = ""; }
+      else if (c !== "\r") field += c;
+    }
+  }
+  if (field || row.length) { row.push(field); rows.push(row); }
+  return rows;
+}
+
+function normalizeHeader(h) {
+  return (h || "").trim().toLowerCase();
+}
+
+function loadFromCSVText(csvText) {
+  const rows = parseCSV((csvText || "").trim());
+  if (!rows.length) throw new Error("CSV is empty.");
+
+  const headersRaw = rows[0].map(h => (h || "").trim());
+  state.headersRaw = headersRaw;
+
+  const headersNorm = headersRaw.map(normalizeHeader);
+
+  const yi = headersNorm.indexOf("year");
+  const ti = headersNorm.indexOf("topic");
+  const si = headersNorm.indexOf("subtopic");
+
+  if (yi < 0 || ti < 0 || si < 0) {
+    throw new Error(`CSV must include headers: year, topic, subtopic. Found: ${headersRaw.join(", ")}`);
+  }
+
+  // Map normalized header -> original header + index
+  const headerIndexByNorm = new Map();
+  headersRaw.forEach((h, i) => {
+    const k = normalizeHeader(h);
+    if (!headerIndexByNorm.has(k)) headerIndexByNorm.set(k, { raw: h, idx: i });
+  });
+
+  // Resolve KEEP_OTHER_COLUMNS (case-insensitive) to real headers/indices that exist in the CSV
+  const keepOtherResolved = KEEP_OTHER_COLUMNS
+    .map(name => headerIndexByNorm.get(normalizeHeader(name)))
+    .filter(Boolean);
+
+  // Only these "other" columns will be retained
+  const otherIdxs = keepOtherResolved.map(x => ({ h: x.raw, i: x.idx }));
+  state.others = otherIdxs.map(x => x.h);
+
+  const data = [];
+  for (let r = 1; r < rows.length; r++) {
+    const row = rows[r];
+    if (!row || row.every(v => !String(v || "").trim())) continue;
+
+    const others = {};
+    for (const o of otherIdxs) {
+      others[o.h] = (row[o.i] ?? "").trim();
+    }
+
+    data.push({
+      year: (row[yi] ?? "").trim(),
+      topic: (row[ti] ?? "").trim(),
+      subtopic: (row[si] ?? "").trim(),
+      others
+    });
+  }
+
+  state.data = data;
+
+  // Persistent button values from FULL data
+  state.allYears = uniqueSorted(state.data.map(d => d.year), true);
+  state.allTopics = uniqueSorted(state.data.map(d => d.topic), false);
+  state.allSubtopics = uniqueSorted(state.data.map(d => d.subtopic), false);
+
+//  updateDownloadLink(); // still works, now exports only kept columns + filters
+  clearAll();
+}
+
+// =======================
+// Filtering
+// =======================
+function passesSearch(d, q) {
+     return true;
+//   if (!q) return true;
+//   const hay = [
+//     d.year, d.topic, d.subtopic,
+//     ...Object.values(d.others || {})
+//   ].join(" ").toLowerCase();
+//   return hay.includes(q);
+}
+
+function filterData(filtersOverride = null) {
+  const F = filtersOverride || state.filters;
+  const { year, topic, subtopic, search } = F;
+
+  return state.data.filter(d => {
+    if (year.size && !year.has(d.year)) return false;
+    if (topic.size && !topic.has(d.topic)) return false;
+    if (subtopic.size && !subtopic.has(d.subtopic)) return false;
+    if (!passesSearch(d, search)) return false;
+    return true;
+  });
+}
+
+// Counts for a dimension given the *other* filters
+function countsForDimension(dimKey) {
+  // Clone filters, but remove this dimension’s selection so counts reflect “what would be available”
+  const F = {
+    year: new Set(state.filters.year),
+    topic: new Set(state.filters.topic),
+    subtopic: new Set(state.filters.subtopic),
+    search: state.filters.search
+  };
+  F[dimKey].clear();
+
+  const base = filterData(F);
+  const m = new Map();
+
+  for (const d of base) {
+    const v = d[dimKey] || "";
+    m.set(v, (m.get(v) || 0) + 1);
+  }
+  return m; // Map(value -> count)
+}
+
+function uniqueSorted(values, numericDescIfPossible) {
+  const arr = [...new Set(values.filter(v => String(v).trim()))];
+
+  if (numericDescIfPossible) {
+    const allNumeric = arr.length && arr.every(v => !Number.isNaN(Number(v)));
+    if (allNumeric) return arr.sort((a, b) => Number(b) - Number(a));
+  }
+  return arr.sort((a, b) => String(a).localeCompare(String(b)));
+}
+
+// =======================
+// UI rendering
+// =======================
+function makeButton(label, count, pressed, disabled, onClick) {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "filter";
+  b.setAttribute("aria-pressed", pressed ? "true" : "false");
+  b.disabled = !!disabled;
+
+  // Show counts, but keep label clean
+  b.textContent = `${label} (${count})`;
+
+  b.addEventListener("click", onClick);
+  return b;
+}
+
+function renderButtons(container, allValues, dimKey, countsMap) {
+  container.innerHTML = "";
+  const selectedSet = state.filters[dimKey];
+
+  for (const v of allValues) {
+    const count = countsMap.get(v) || 0;
+    const pressed = selectedSet.has(v);
+
+    // If pressed, allow un-pressing even if count is 0 under other filters
+    const disabled = DISABLE_ZERO_COUNT_BUTTONS ? (!pressed && count === 0) : false;
+
+    container.appendChild(
+      makeButton(v, count, pressed, disabled, () => toggle(dimKey, v))
+    );
+  }
+}
+function renderTable(rows) {
+  els.tbody.innerHTML = "";
+
+  for (const d of rows) {
+    const tr = document.createElement("tr");
+
+    ["year","topic","subtopic"].forEach(k => {
+      const td = document.createElement("td");
+      td.textContent = d[k];
+      tr.appendChild(td);
+    });
+
+    const tdOther = document.createElement("td");
+    tdOther.innerHTML = Object.entries(d.others)
+      .map(([k,v]) => `${k}: ${v}`)
+      .join(" | ");
+
+    // ✅ FORCE ALL LINKS TO OPEN IN NEW TAB
+    tdOther.querySelectorAll("a[href]").forEach(a => {
+      a.setAttribute("target", "_blank");
+      a.setAttribute("rel", "noopener noreferrer");
+    });
+
+    tr.appendChild(tdOther);
+    els.tbody.appendChild(tr);
+  }
+}
+
+
+function update() {
+  const filtered = filterData();
+
+  // counts per dimension (given other filters)
+  const yearCounts = countsForDimension("year");
+  const topicCounts = countsForDimension("topic");
+  const subCounts = countsForDimension("subtopic");
+
+  // Persistent buttons: always render ALL values from full dataset
+  renderButtons(els.yearBtns, state.allYears, "year", yearCounts);
+  renderButtons(els.topicBtns, state.allTopics, "topic", topicCounts);
+  renderButtons(els.subtopicBtns, state.allSubtopics, "subtopic", subCounts);
+
+  renderTable(filtered);
+
+  els.count.textContent = `${filtered.length.toLocaleString()} / ${state.data.length.toLocaleString()} rows`;
+  els.table.classList.toggle("hidden", state.data.length === 0);
+}
+
+function toggle(dim, val) {
+  const set = state.filters[dim];
+  if (set.has(val)) set.delete(val);
+  else set.add(val);
+  update();
+}
+function clearAll() {
+  state.filters.year.clear();
+  state.filters.topic.clear();
+  state.filters.subtopic.clear();
+  state.filters.search = "";
+
+  if (els.search) els.search.value = "";  // ✅ guard
+
+  update();
+}
+
+// =======================
+// Load CSV on page load
+// =======================
+async function init() {
+  try {
+    const res = await fetch(CSV_PATH);
+    if (!res.ok) throw new Error(res.statusText);
+    loadFromCSVText(await res.text());
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+
+els.clearAll.addEventListener("click", clearAll);
+
+// Search temporarily disabled
+// els.search.oninput = () => {
+//   state.filters.search = els.search.value.toLowerCase();
+//   update();
+// };
+
+init();
+</script>
+
+</body>
+</html>
