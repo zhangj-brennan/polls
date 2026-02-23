@@ -77,10 +77,10 @@ button.filter {
   background: #fff;
   padding: 6px 12px;
   border-radius: 0px;
-  cursor: pointer;
-
-  text-align: left;
-  max-width: 200px;
+  cursor: pointer; 
+  text-align:left;
+  max-width:200px;
+  
 }
 
 button.filter[aria-pressed="true"] {
@@ -179,7 +179,7 @@ input[type="search"] {
 }
 
 .compact-sticky .panel .filter {
-  font-family: "BentonStrong";
+  font-family:"BentonStrong"
   padding: 6px 6px;
   font-size: 12px;
   line-height: 1.25;
@@ -194,8 +194,7 @@ input[type="search"] {
    SUBJECT COLOR SYSTEM
    - Buttons (Topic panel)
    - Table rows + Topic cell
-========================= */
-/* Topic buttons: default (colored background) */
+========================= *//* Topic buttons: default (colored background) */
 button.filter.subject-colored {
   background: var(--subject-color, var(--subject-color-default));
   /* border: 1px solid var(--subject-color, var(--subject-color-default)); */
@@ -214,9 +213,9 @@ button.filter.subject-colored[disabled] {
   filter: grayscale(100%);
 }
 
-/* =========================
-   Table
-========================= */
+
+
+/* Table */
 table {
   border-collapse: collapse;
   width: 100%;
@@ -226,7 +225,8 @@ table {
   margin-right: auto;
 }
 
-th, td {
+th,
+td {
   border-bottom: 1px solid #000;
   padding: 8px;
   text-align: left;
@@ -248,77 +248,6 @@ td.topic-cell {
 }
 
 /* =========================
-   Inline stacked bar chart
-========================= */
-.chart {
-  display: grid;
-  gap: 6px;
-}
-
-.chart-title {
-  font-family: "BentonStrong";
-  font-size: 13px;
-  line-height: 1.2;
-}
-
-.chart-bars {
-  display: flex;
-  width: 100%;
-  height: 10px;
-  border: 1px solid #000;
-  border-radius: 0px;
-  overflow: hidden;
-  background: #fff;
-}
-
-.chart-seg {
-  height: 100%;
-}
-
-.chart-seg.a1 {
-  background: var(--subject-color, var(--subject-color-default));
-}
-
-.chart-seg.a2 {
-  background: #cfcfcf;
-}
-
-.chart-legend {
-  display: flex;
-  gap: 14px;
-  font-size: 12px;
-  line-height: 1.25;
-  color: #111;
-  flex-wrap: wrap; /* allows wrap on very narrow screens */
-}
-
-.legend-item {
-  display: inline-flex;
-  gap: 6px;
-  align-items: center;
-  white-space: nowrap;
-}
-
-.legend-swatch {
-  width: 10px;
-  height: 10px;
-  border: 1px solid #000;
-  border-radius: 0px;
-  flex: 0 0 auto;
-}
-
-.legend-swatch.a1 { background: var(--subject-color, var(--subject-color-default)); }
-.legend-swatch.a2 { background: #cfcfcf; }
-
-.legend-text {
-  display: inline;
-}
-
-.legend-value {
-  color: #444;
-}
-
-/* =========================
    Responsive
 ========================= */
 @media (max-width: 780px) {
@@ -334,7 +263,6 @@ td.topic-cell {
     grid-template-columns: 1fr;
   }
 }
-
 /* Sticky bar stays full width */
 .compact-sticky {
   position: sticky;
@@ -342,21 +270,20 @@ td.topic-cell {
   z-index: 20;
   background: white;
   border-bottom: none;
-  padding: 6px 0;         /* vertical only */
+  padding: 6px 0;          /* vertical only */
 }
 
 /* Centered 800px content inside sticky */
 .topbar-inner {
   max-width: 800px;
   margin: 0 auto;
-  padding: 0 12px;        /* side breathing room on small screens */
+  padding: 0 12px;         /* side breathing room on small screens */
   display: grid;
   grid-template-rows: auto auto;
   gap: 6px;
+    border-bottom: 3px solid #000;
 
-  border-bottom: 3px solid #000;
 }
-
 .controls{
   margin-bottom:10px;
 }
@@ -366,8 +293,8 @@ td.topic-cell {
 <body>
 <div class="topbar filter-panels compact-sticky">
   <div class="topbar-inner">
-    <h1>Poll Aggregator</h1>
-    *real categories and filter counts, no Description
+    <h1>Poll Aggregator</h1>*real categories and filter counts, no Description
+    
 
     <div class="filters">
       <div class="panel topic-panel">
@@ -385,7 +312,6 @@ td.topic-cell {
         <div id="yearBtns" class="btns"></div>
       </div>
     </div>
-
     <div class="controls">
       <button id="clearAll" class="filter">Clear Filters</button>
       <!-- <input id="search" type="search" placeholder="Search…" /> -->
@@ -393,15 +319,18 @@ td.topic-cell {
       <a id="downloadAll" class="filter" href="#" download="full_dataset.csv">Download CSV</a>
     </div>
   </div>
+
 </div>
+
 
 <table id="table" class="hidden">
   <thead>
     <tr>
       <th style="width:40px">Year</th>
-      <th style="width:120px">Section</th>
-      <th style="width:120px">Theme</th>
-<th style="width:260px">Results</th>    </tr>
+      <th style="width:120px">Topic</th>
+      <th style="width:80px">Subtopic</th>
+      <th>Description</th>
+    </tr>
   </thead>
   <tbody id="tbody"></tbody>
 </table>
@@ -410,17 +339,17 @@ td.topic-cell {
 // =======================
 // CONFIG
 // =======================
-const CSV_PATH = "data_valueColumns.csv"; // resolves to /polls/data.csv from /polls/index.html
+const CSV_PATH = "./data_valueColumns.csv"; // resolves to /polls/data.csv from /polls/index.html
 
 // keep 0-count buttons visible but disabled?
 const DISABLE_ZERO_COUNT_BUTTONS = true;
 
-// If you later want to show additional fields after the chart, put their header names here.
-// (Case-insensitive match to CSV headers.)
-// NOTE: right now we are NOT using Description in the table, per your note.
-const KEEP_OTHER_COLUMNS = [
-  // "Description",
-  // "method"
+// NEW: only keep these non-filter columns (case-insensitive match to CSV headers)
+const KEEP_OTHER_COLUMNS = ["Description"
+  // Examples:
+  // "Links",
+  // "Title",
+  // "Text"
 ];
 
 // =======================
@@ -443,12 +372,10 @@ function subjectColor(subject) {
 const state = {
   data: [],
   others: [],
-
   // All unique values from full dataset (persistent buttons)
   allYears: [],
   allTopics: [],
   allSubtopics: [],
-
   filters: {
     year: new Set(),
     topic: new Set(),
@@ -497,15 +424,6 @@ function normalizeHeader(h) {
   return (h || "").trim().toLowerCase();
 }
 
-function parseNumberLoose(x) {
-  // Accept: "52", "52.1", "52%", "1,234", "", null
-  const s = String(x ?? "").trim();
-  if (!s) return NaN;
-  const cleaned = s.replace(/[%,$]/g, "").replace(/,/g, "").trim();
-  const n = Number(cleaned);
-  return Number.isFinite(n) ? n : NaN;
-}
-
 function loadFromCSVText(csvText) {
   const rows = parseCSV((csvText || "").trim());
   if (!rows.length) throw new Error("CSV is empty.");
@@ -515,24 +433,12 @@ function loadFromCSVText(csvText) {
 
   const headersNorm = headersRaw.map(normalizeHeader);
 
-  const yi  = headersNorm.indexOf("year");
-  const ti  = headersNorm.indexOf("topic");
-  const si  = headersNorm.indexOf("subtopic");
-
-  const qi  = headersNorm.indexOf("question wording");
-  const a1t = headersNorm.indexOf("answer 1 text");
-  const a1v = headersNorm.indexOf("answer 1 value");
-  const a2t = headersNorm.indexOf("answer 2 text");
-  const a2v = headersNorm.indexOf("answer 2 value");
+  const yi = headersNorm.indexOf("year");
+  const ti = headersNorm.indexOf("topic");
+  const si = headersNorm.indexOf("subtopic");
 
   if (yi < 0 || ti < 0 || si < 0) {
     throw new Error(`CSV must include headers: year, topic, subtopic. Found: ${headersRaw.join(", ")}`);
-  }
-  if (qi < 0 || a1t < 0 || a1v < 0 || a2t < 0 || a2v < 0) {
-    throw new Error(
-      `CSV must include chart headers: "question wording", "answer 1 text", "answer 1 value", "answer 2 text", "answer 2 value".
-Found: ${headersRaw.join(", ")}`
-    );
   }
 
   // Map normalized header -> original header + index
@@ -565,14 +471,6 @@ Found: ${headersRaw.join(", ")}`
       year: (row[yi] ?? "").trim(),
       topic: (row[ti] ?? "").trim(),
       subtopic: (row[si] ?? "").trim(),
-
-      // Chart fields
-      questionWording: (row[qi] ?? "").trim(),
-      ans1Text: (row[a1t] ?? "").trim(),
-      ans1ValueRaw: (row[a1v] ?? "").trim(),
-      ans2Text: (row[a2t] ?? "").trim(),
-      ans2ValueRaw: (row[a2v] ?? "").trim(),
-
       others
     });
   }
@@ -584,7 +482,7 @@ Found: ${headersRaw.join(", ")}`
   state.allTopics = uniqueSorted(state.data.map(d => d.topic), false);
   state.allSubtopics = uniqueSorted(state.data.map(d => d.subtopic), false);
 
-  //  updateDownloadLink(); // still works, now exports only kept columns + filters
+//  updateDownloadLink(); // still works, now exports only kept columns + filters
   clearAll();
 }
 
@@ -592,14 +490,13 @@ Found: ${headersRaw.join(", ")}`
 // Filtering
 // =======================
 function passesSearch(d, q) {
-  return true;
-  // if (!q) return true;
-  // const hay = [
-  //   d.year, d.topic, d.subtopic,
-  //   d.questionWording, d.ans1Text, d.ans1ValueRaw, d.ans2Text, d.ans2ValueRaw,
-  //   ...Object.values(d.others || {})
-  // ].join(" ").toLowerCase();
-  // return hay.includes(q);
+     return true;
+//   if (!q) return true;
+//   const hay = [
+//     d.year, d.topic, d.subtopic,
+//     ...Object.values(d.others || {})
+//   ].join(" ").toLowerCase();
+//   return hay.includes(q);
 }
 
 function filterData(filtersOverride = null) {
@@ -688,84 +585,6 @@ function renderButtons(container, allValues, dimKey, countsMap) {
   }
 }
 
-function formatMaybePercent(raw, num) {
-  const s = String(raw ?? "").trim();
-  // If the original had a % sign, keep it; otherwise show plain number
-  if (s.includes("%")) return `${num.toFixed(1)}%`;
-  // If it's an integer, print no decimals
-  if (Number.isFinite(num) && Math.abs(num - Math.round(num)) < 1e-9) return `${Math.round(num)}`;
-  return Number.isFinite(num) ? `${num.toFixed(1)}` : `${s}`;
-}
-
-function makeStackedChartCell(d) {
-  const a1 = parseNumberLoose(d.ans1ValueRaw);
-  const a2 = parseNumberLoose(d.ans2ValueRaw);
-
-  const total = (Number.isFinite(a1) ? a1 : 0) + (Number.isFinite(a2) ? a2 : 0);
-  const pct1 = total > 0 && Number.isFinite(a1) ? (a1 / total) * 100 : 0;
-  const pct2 = total > 0 && Number.isFinite(a2) ? (a2 / total) * 100 : 0;
-
-  const wrap = document.createElement("div");
-  wrap.className = "chart";
-
-  const title = document.createElement("div");
-  title.className = "chart-title";
-  title.textContent = d.questionWording || "";
-  wrap.appendChild(title);
-
-  const bars = document.createElement("div");
-  bars.className = "chart-bars";
-
-  const seg1 = document.createElement("div");
-  seg1.className = "chart-seg a1";
-  seg1.style.width = `${Math.max(0, Math.min(100, pct1))}%`;
-  seg1.title = `${d.ans1Text || "Answer 1"}: ${d.ans1ValueRaw || ""}`;
-  bars.appendChild(seg1);
-
-  const seg2 = document.createElement("div");
-  seg2.className = "chart-seg a2";
-  seg2.style.width = `${Math.max(0, Math.min(100, pct2))}%`;
-  seg2.title = `${d.ans2Text || "Answer 2"}: ${d.ans2ValueRaw || ""}`;
-  bars.appendChild(seg2);
-
-  // If total is 0 / missing, show an “empty” bar state by leaving widths 0
-  wrap.appendChild(bars);
-
-  const legend = document.createElement("div");
-  legend.className = "chart-legend";
-
-  const item1 = document.createElement("div");
-  item1.className = "legend-item";
-  item1.innerHTML = `
-    <span class="legend-swatch a1"></span>
-    <span class="legend-text">${escapeHTML(d.ans1Text || "Answer 1")}</span>
-    <span class="legend-value">(${escapeHTML(d.ans1ValueRaw || "")})</span>
-  `;
-
-  const item2 = document.createElement("div");
-  item2.className = "legend-item";
-  item2.innerHTML = `
-    <span class="legend-swatch a2"></span>
-    <span class="legend-text">${escapeHTML(d.ans2Text || "Answer 2")}</span>
-    <span class="legend-value">(${escapeHTML(d.ans2ValueRaw || "")})</span>
-  `;
-
-  legend.appendChild(item1);
-  legend.appendChild(item2);
-  wrap.appendChild(legend);
-
-  return wrap;
-}
-
-function escapeHTML(s) {
-  return String(s ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
 function renderTable(rows) {
   els.tbody.innerHTML = "";
 
@@ -800,24 +619,18 @@ function renderTable(rows) {
       tr.appendChild(td);
     }
 
-    // Results (stacked bar chart)
-    {
-      const td = document.createElement("td");
-      td.appendChild(makeStackedChartCell(d));
+    const tdOther = document.createElement("td");
+    tdOther.innerHTML = Object.entries(d.others)
+      .map(([k,v]) => `${k}: ${v}`)
+      .join(" | ");
 
-      // Optional: if you later re-enable KEEP_OTHER_COLUMNS, you can append text below the chart:
-      // if (d.others && Object.keys(d.others).length) {
-      //   const extra = document.createElement("div");
-      //   extra.style.marginTop = "6px";
-      //   extra.style.fontSize = "12px";
-      //   extra.style.color = "#444";
-      //   extra.textContent = Object.entries(d.others).map(([k,v]) => `${k}: ${v}`).join(" | ");
-      //   td.appendChild(extra);
-      // }
+    // ✅ FORCE ALL LINKS TO OPEN IN NEW TAB
+    tdOther.querySelectorAll("a[href]").forEach(a => {
+      a.setAttribute("target", "_blank");
+      a.setAttribute("rel", "noopener noreferrer");
+    });
 
-      tr.appendChild(td);
-    }
-
+    tr.appendChild(tdOther);
     els.tbody.appendChild(tr);
   }
 }
