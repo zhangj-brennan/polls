@@ -29,12 +29,14 @@ body {
 }
 
 h1 {
-  font-size: 36px;
+  font-size: 28px;
   /* margin: 10 0 12px; */
   font-family: "BentonStrong";
   letter-spacing:.5px;
-  text-align:center;
-    margin:5px;
+  text-align:left;
+    margin-top:20px;
+    padding-top:20px;
+    border-top:3px solid black;
 
 }
 h2{
@@ -74,12 +76,20 @@ a {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+    /* flex-direction: column;     stack */
+
+}
+.btns .filter {
+  /* width: 100%; */
+  max-width: none;            /* override max-width:200px */
+  box-sizing: border-box;
 }
 
 /* =========================
    Controls
 ========================= */
 button.filter {
+  
   border: 1px solid #000;
   background: #fff;
   padding: 6px 12px;
@@ -436,11 +446,11 @@ td a {
 </head>
 
 <body>
-  This is a test, styles in progress.
-  <br>Categories and filter counts are real, no real text or values<br>
+  This is a test, styles in progress/pending approval. 
+  <br>DO NOT SHARE
 <div id="filterBar" class="topbar filter-panels compact-sticky">
   <div class="topbar-inner">
-    <h1>SCOTUS Polls</h1>
+    <h1>Collection of Public Opinion Polls on the Supreme Court</h1>
 
     <div class="filters">
       
@@ -464,9 +474,11 @@ td a {
       <button id="clearAll" class="filter">Reset All Filters</button>
       <!-- <input id="search" type="search" placeholder="Search…" /> -->
       <div id="count" class="meta"></div> 
-        <button id="downloadPDF" class="filter">Download PDF</button>
-      <a id="downloadAll" class="filter" href="#" download="full_dataset.csv">
-        Download Methodology</a>
+        <!-- <button id="downloadPDF" class="filter">Download PDF</button> -->
+      <!-- <a id="downloadAll" class="filter" href="#" download="data_02242026.csv">
+        Download Full Dataset</a> -->
+
+        <a id="downloadAll" class="filter" href = "data_02242026.csv"> Download Full Dataset</a>
     </div>
   </div>
 </div>
@@ -488,7 +500,7 @@ td a {
 // =======================
 // CONFIG
 // =======================
-const CSV_PATH = "data_values_source.csv"; // resolves to /polls/data.csv from /polls/index.html
+const CSV_PATH = "data_02242026.csv"; // resolves to /polls/data.csv from /polls/index.html
 
 // keep 0-count buttons visible but disabled?
 const DISABLE_ZERO_COUNT_BUTTONS = true;
@@ -536,7 +548,7 @@ const state = {
 
 const els = {
   clearAll: document.getElementById("clearAll"),
-  downloadPDF: document.getElementById("downloadPDF"),
+  // downloadPDF: document.getElementById("downloadPDF"),
   search: document.getElementById("search"),
   count: document.getElementById("count"),
   yearBtns: document.getElementById("yearBtns"),
@@ -992,12 +1004,11 @@ async function init() {
   }
 }
 
-els.clearAll.addEventListener("click", clearAll);
-if (els.downloadPDF) {
-  els.downloadPDF.addEventListener("click", () => {
-    window.print();
-  });
-}
+// if (els.downloadPDF) {
+//   els.downloadPDF.addEventListener("click", () => {
+//     window.print();
+//   });
+// }
 // Search temporarily disabled
 // els.search.oninput = () => {
 //   state.filters.search = els.search.value.toLowerCase();
@@ -1005,6 +1016,8 @@ if (els.downloadPDF) {
 // };
 
 init();
+els.clearAll.addEventListener("click", clearAll);
+
 </script>
 
 </body>
