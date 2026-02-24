@@ -29,11 +29,18 @@ body {
 }
 
 h1 {
-  font-size: 24px;
-  margin: 0 0 12px;
+  font-size: 36px;
+  /* margin: 10 0 12px; */
   font-family: "BentonStrong";
-}
+  letter-spacing:.5px;
+  text-align:center;
+    margin:5px;
 
+}
+h2{
+  font-size: 18px;
+  margin:5px;
+}
 a {
   color: #007194;
   text-decoration: none;
@@ -73,14 +80,15 @@ a {
    Controls
 ========================= */
 button.filter {
-  border: 1px solid #ccc;
+  border: 1px solid #000;
   background: #fff;
   padding: 6px 12px;
   border-radius: 0px;
   cursor: pointer;
-
   text-align: left;
   max-width: 200px;
+    display: flex;              /* override default button layout */
+
 }
 
 button.filter[aria-pressed="true"] {
@@ -108,6 +116,10 @@ input[type="search"] {
 .hidden {
   display: none;
 }
+#clearAll{
+  /* font-size:16px; */
+  margin:10px
+}
 
 /* =========================
    Sticky wrapper (your top bar)
@@ -117,7 +129,7 @@ input[type="search"] {
   top: 0;
   z-index: 10;
   background: white;
-  padding: 8px 0;
+  /* padding: 8px 0; */
 }
 
 /* Sticky container layout */
@@ -131,7 +143,7 @@ input[type="search"] {
 
   display: grid;
   grid-template-rows: auto auto;
-  gap: 6px;
+  gap: 0px;
 }
 
 /* Row 1: controls */
@@ -217,8 +229,17 @@ button.filter.subject-colored[disabled] {
 /* =========================
    Table
 ========================= */
+thead th{
+  /* position: sticky;
+  top: var(--thead-offset, 0px); JS will set this */
+  z-index: 30;                   /* above rows; below topbar if you want */
+  background: #fff;
+  /* top: var(--table-header-offset, 0px);
+  line-height:1; */
+}
 table {
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing:0;
   width: 100%;
   max-width: 800px;
   margin-top: 14px;
@@ -236,8 +257,7 @@ th, td {
 
 th {
   background: #fff;
-  position: sticky;
-  top: 0;
+  z-index: 5;              /* ← ADD THIS */
   font-family: "BentonStrong";
 }
 
@@ -257,15 +277,14 @@ td.topic-cell {
 
 .chart-title {
   font-family: "BentonStrong";
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.2;
 }
 
 .chart-bars {
   display: flex;
   width: 100%;
-  height: 10px;
-  border: 1px solid #000;
+  height: 10px;              /* thinner bar */
   border-radius: 0px;
   overflow: hidden;
   background: #fff;
@@ -276,20 +295,22 @@ td.topic-cell {
 }
 
 .chart-seg.a1 {
-  background: var(--subject-color, var(--subject-color-default));
+  /* background:#3995B2; */
+   background: var(--subject-color, var(--subject-color-default)); 
 }
 
 .chart-seg.a2 {
-  background: #cfcfcf;
+  background: #FFCF01;
 }
 
+/* legend on one line */
 .chart-legend {
   display: flex;
-  gap: 14px;
+  gap: 10px;
   font-size: 12px;
   line-height: 1.25;
   color: #111;
-  flex-wrap: wrap; /* allows wrap on very narrow screens */
+  flex-wrap: wrap; /* wraps on narrow screens */
 }
 
 .legend-item {
@@ -302,20 +323,22 @@ td.topic-cell {
 .legend-swatch {
   width: 10px;
   height: 10px;
-  border: 1px solid #000;
+  /* border: 1px solid #000; */
   border-radius: 0px;
   flex: 0 0 auto;
 }
 
 .legend-swatch.a1 { background: var(--subject-color, var(--subject-color-default)); }
-.legend-swatch.a2 { background: #cfcfcf; }
+.legend-swatch.a2 { background: #FFCF01;}
 
-.legend-text {
-  display: inline;
-}
+.legend-text { display: inline; }
+.legend-value { color: #444; }
 
-.legend-value {
-  color: #444;
+/* Optional polish for link column */
+td a {
+  font-family: "BentonStrong";
+  font-size: 12px;
+  text-decoration: underline;
 }
 
 /* =========================
@@ -342,14 +365,14 @@ td.topic-cell {
   z-index: 20;
   background: white;
   border-bottom: none;
-  padding: 6px 0;         /* vertical only */
+  padding: 0px 0;         /* vertical only */
 }
 
 /* Centered 800px content inside sticky */
 .topbar-inner {
   max-width: 800px;
   margin: 0 auto;
-  padding: 0 12px;        /* side breathing room on small screens */
+  padding: 0 0px;        /* side breathing room on small screens */
   display: grid;
   grid-template-rows: auto auto;
   gap: 6px;
@@ -358,18 +381,21 @@ td.topic-cell {
 }
 
 .controls{
-  margin-bottom:10px;
+  margin-bottom: 0 !important;
+  padding:0px;
 }
 </style>
 </head>
 
 <body>
-<div class="topbar filter-panels compact-sticky">
+  This is a test, styles in progress.
+  <br>Categories and filter counts are real, no real text or values<br>
+<div id="filterBar" class="topbar filter-panels compact-sticky">
   <div class="topbar-inner">
-    <h1>Poll Aggregator</h1>
-    *real categories and filter counts, no Description
+    <h1>SCOTUS Polls</h1>
 
     <div class="filters">
+      
       <div class="panel topic-panel">
         <h2>Section</h2>
         <div id="topicBtns" class="btns"></div>
@@ -387,10 +413,11 @@ td.topic-cell {
     </div>
 
     <div class="controls">
-      <button id="clearAll" class="filter">Clear Filters</button>
+      <button id="clearAll" class="filter">Reset All Filters</button>
       <!-- <input id="search" type="search" placeholder="Search…" /> -->
-      <div id="count" class="meta"></div>
-      <a id="downloadAll" class="filter" href="#" download="full_dataset.csv">Download CSV</a>
+      <div id="count" class="meta"></div> 
+      <a id="downloadAll" class="filter" href="#" download="full_dataset.csv">
+        Download Complete Dataset</a>
     </div>
   </div>
 </div>
@@ -399,9 +426,11 @@ td.topic-cell {
   <thead>
     <tr>
       <th style="width:40px">Year</th>
-      <th style="width:120px">Section</th>
-      <th style="width:120px">Theme</th>
-<th style="width:260px">Results</th>    </tr>
+      <th style="width:120px">Topic</th>
+      <th style="width:120px">Subtopic</th>
+      <th style="width:260px">Results</th> <!-- smaller bar column -->
+      <th style="width:70px">Source</th>
+    </tr>
   </thead>
   <tbody id="tbody"></tbody>
 </table>
@@ -410,14 +439,13 @@ td.topic-cell {
 // =======================
 // CONFIG
 // =======================
-const CSV_PATH = "data_valueColumns.csv"; // resolves to /polls/data.csv from /polls/index.html
+const CSV_PATH = "data_values_source.csv"; // resolves to /polls/data.csv from /polls/index.html
 
 // keep 0-count buttons visible but disabled?
 const DISABLE_ZERO_COUNT_BUTTONS = true;
 
 // If you later want to show additional fields after the chart, put their header names here.
 // (Case-insensitive match to CSV headers.)
-// NOTE: right now we are NOT using Description in the table, per your note.
 const KEEP_OTHER_COLUMNS = [
   // "Description",
   // "method"
@@ -525,6 +553,10 @@ function loadFromCSVText(csvText) {
   const a2t = headersNorm.indexOf("answer 2 text");
   const a2v = headersNorm.indexOf("answer 2 value");
 
+  // NEW: link columns (display + URL)
+  const ltxt = headersNorm.indexOf("link text");
+  const lurl = headersNorm.indexOf("link url");
+
   if (yi < 0 || ti < 0 || si < 0) {
     throw new Error(`CSV must include headers: year, topic, subtopic. Found: ${headersRaw.join(", ")}`);
   }
@@ -573,6 +605,10 @@ Found: ${headersRaw.join(", ")}`
       ans2Text: (row[a2t] ?? "").trim(),
       ans2ValueRaw: (row[a2v] ?? "").trim(),
 
+      // Link fields (safe if missing)
+      linkText: ltxt >= 0 ? (row[ltxt] ?? "").trim() : "",
+      linkURL:  lurl >= 0 ? (row[lurl] ?? "").trim() : "",
+
       others
     });
   }
@@ -597,6 +633,7 @@ function passesSearch(d, q) {
   // const hay = [
   //   d.year, d.topic, d.subtopic,
   //   d.questionWording, d.ans1Text, d.ans1ValueRaw, d.ans2Text, d.ans2ValueRaw,
+  //   d.linkText, d.linkURL,
   //   ...Object.values(d.others || {})
   // ].join(" ").toLowerCase();
   // return hay.includes(q);
@@ -649,6 +686,19 @@ function uniqueSorted(values, numericDescIfPossible) {
 // =======================
 // UI rendering
 // =======================
+
+
+function updateTableHeaderOffset() {
+  const bar = document.getElementById("filterBar");
+  if (!bar) return;
+
+  const rect = bar.getBoundingClientRect();
+  const height = Math.ceil(rect.height);
+
+  document.documentElement.style
+    .setProperty("--table-header-offset", `${height}px`);
+}
+
 function makeButton(label, count, pressed, disabled, onClick) {
   const b = document.createElement("button");
   b.type = "button";
@@ -688,13 +738,13 @@ function renderButtons(container, allValues, dimKey, countsMap) {
   }
 }
 
-function formatMaybePercent(raw, num) {
-  const s = String(raw ?? "").trim();
-  // If the original had a % sign, keep it; otherwise show plain number
-  if (s.includes("%")) return `${num.toFixed(1)}%`;
-  // If it's an integer, print no decimals
-  if (Number.isFinite(num) && Math.abs(num - Math.round(num)) < 1e-9) return `${Math.round(num)}`;
-  return Number.isFinite(num) ? `${num.toFixed(1)}` : `${s}`;
+function escapeHTML(s) {
+  return String(s ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
 function makeStackedChartCell(d) {
@@ -728,7 +778,6 @@ function makeStackedChartCell(d) {
   seg2.title = `${d.ans2Text || "Answer 2"}: ${d.ans2ValueRaw || ""}`;
   bars.appendChild(seg2);
 
-  // If total is 0 / missing, show an “empty” bar state by leaving widths 0
   wrap.appendChild(bars);
 
   const legend = document.createElement("div");
@@ -757,13 +806,19 @@ function makeStackedChartCell(d) {
   return wrap;
 }
 
-function escapeHTML(s) {
-  return String(s ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+function isSafeURL(url) {
+  // Avoid javascript: and other weird schemes.
+  // Allow http(s) and relative URLs.
+  const u = String(url || "").trim();
+  if (!u) return false;
+  if (u.startsWith("/")) return true;
+  if (u.startsWith("./") || u.startsWith("../")) return true;
+  try {
+    const parsed = new URL(u, window.location.href);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
 }
 
 function renderTable(rows) {
@@ -789,7 +844,6 @@ function renderTable(rows) {
       const td = document.createElement("td");
       td.textContent = d.topic;
       td.className = "topic-cell";
-      // color is driven by CSS var --subject-color
       tr.appendChild(td);
     }
 
@@ -804,16 +858,23 @@ function renderTable(rows) {
     {
       const td = document.createElement("td");
       td.appendChild(makeStackedChartCell(d));
+      tr.appendChild(td);
+    }
 
-      // Optional: if you later re-enable KEEP_OTHER_COLUMNS, you can append text below the chart:
-      // if (d.others && Object.keys(d.others).length) {
-      //   const extra = document.createElement("div");
-      //   extra.style.marginTop = "6px";
-      //   extra.style.fontSize = "12px";
-      //   extra.style.color = "#444";
-      //   extra.textContent = Object.entries(d.others).map(([k,v]) => `${k}: ${v}`).join(" | ");
-      //   td.appendChild(extra);
-      // }
+    // Link
+    {
+      const td = document.createElement("td");
+
+      if (d.linkURL && isSafeURL(d.linkURL)) {
+        const a = document.createElement("a");
+        a.href = d.linkURL;
+        a.textContent = d.linkText || "Link";
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        td.appendChild(a);
+      } else {
+        td.textContent = "";
+      }
 
       tr.appendChild(td);
     }
@@ -855,8 +916,15 @@ function clearAll() {
   state.filters.search = "";
 
   if (els.search) els.search.value = "";  // ✅ guard
-
   update();
+}
+
+
+window.addEventListener("resize", updateTableHeaderOffset);
+
+// Font loading can change heights
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(updateTableHeaderOffset);
 }
 
 // =======================
@@ -864,6 +932,8 @@ function clearAll() {
 // =======================
 async function init() {
   try {
+        updateTableHeaderOffset();  
+
     const res = await fetch(CSV_PATH);
     if (!res.ok) throw new Error(res.statusText);
     loadFromCSVText(await res.text());
