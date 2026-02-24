@@ -122,6 +122,19 @@ input[type="search"] {
 }
 
 /* =========================
+   Upload control (CSV)
+========================= */
+.upload input[type="file"]{
+  position: absolute;
+  left: -9999px;
+}
+.upload-btn{
+  display: inline-flex;
+  cursor: pointer;
+  max-width: 200px;
+}
+
+/* =========================
    Sticky wrapper (your top bar)
 ========================= */
 .filter-panels {
@@ -149,7 +162,7 @@ input[type="search"] {
 /* Row 1: controls */
 .compact-sticky .controls {
   display: grid;
-  grid-template-columns: auto minmax(140px, 1fr) auto auto;
+  grid-template-columns: auto auto minmax(140px, 1fr) auto auto;
   gap: 6px;
   align-items: center;
 }
@@ -209,9 +222,9 @@ input[type="search"] {
 ========================= */
 /* Topic buttons: default (colored background) */
 button.filter.subject-colored {
-  background: #fff;
+  background: var(--subject-color, var(--subject-color-default));
   /* border: 1px solid var(--subject-color, var(--subject-color-default)); */
-  color: var(--subject-color, var(--subject-color-default));
+  color: #fff;
 }
 
 /* Selected state: strong black outline */
@@ -384,54 +397,6 @@ td a {
   margin-bottom: 0 !important;
   padding:0px;
 }
-
-
-/* =========================
-   Print / PDF
-========================= */
-@media print {
-  a[href] { color: #000; text-decoration: underline; }
-
-  body {
-    margin: 0;
-  }
-
-  /* Hide the sticky filter UI and helper text */
-  #filterBar,
-  .controls,
-  .filters,
-  #topicBtns,
-  #subtopicBtns,
-  #yearBtns,
-  #count,
-  #downloadAll {
-    display: none !important;
-  }
-
-  /* If you want the title to appear on the PDF, keep h1 visible */
-  h1 {
-    text-align: left;
-    margin: 0 0 10px 0;
-  }
-
-  /* Make table full width for print */
-  table {
-    max-width: none;
-    width: 100%;
-    margin-top: 0;
-  }
-
-  /* Avoid weird page breaks in the middle of a row */
-  tr {
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
-}
-
-/* Optional: better default paper margins */
-@page {
-  margin: 0.5in;
-}
 </style>
 </head>
 
@@ -462,11 +427,17 @@ td a {
 
     <div class="controls">
       <button id="clearAll" class="filter">Reset All Filters</button>
+
+      <!-- CSV Upload -->
+      <label class="upload">
+        <input id="csvFile" type="file" accept=".csv,text/csv" />
+        <span class="upload-btn filter">Upload CSV</span>
+      </label>
+
       <!-- <input id="search" type="search" placeholder="Search…" /> -->
       <div id="count" class="meta"></div> 
-        <button id="downloadPDF" class="filter">Download PDF</button>
       <a id="downloadAll" class="filter" href="#" download="full_dataset.csv">
-        Download Methodology</a>
+        Download Complete Dataset</a>
     </div>
   </div>
 </div>
@@ -536,7 +507,7 @@ const state = {
 
 const els = {
   clearAll: document.getElementById("clearAll"),
-  downloadPDF: document.getElementById("downloadPDF"),
+  csvFile: document.getElementById("csvFile"),
   search: document.getElementById("search"),
   count: document.getElementById("count"),
   yearBtns: document.getElementById("yearBtns"),
@@ -672,6 +643,16 @@ Found: ${headersRaw.join(", ")}`
 
   //  updateDownloadLink(); // still works, now exports only kept columns + filters
   clearAll();
+}
+
+// =======================
+// CSV Upload (local file)
+// =======================
+async function loadFromUploadedFile(file) {
+  if (!file) return;
+  const text = await file.text();
+  loadFromCSVText(text);
+  updateTableHeaderOffset();
 }
 
 // =======================
@@ -993,11 +974,21 @@ async function init() {
 }
 
 els.clearAll.addEventListener("click", clearAll);
-if (els.downloadPDF) {
-  els.downloadPDF.addEventListener("click", () => {
-    window.print();
+
+// CSV upload event
+if (els.csvFile) {
+  els.csvFile.addEventListener("change", async (e) => {
+    try {
+      const file = e.target.files && e.target.files[0];
+      await loadFromUploadedFile(file);
+      e.target.value = ""; // allow re-uploading the same file
+    } catch (err) {
+      console.error(err);
+      alert("Could not load that CSV. Check the column headers and try again.");
+    }
   });
 }
+
 // Search temporarily disabled
 // els.search.oninput = () => {
 //   state.filters.search = els.search.value.toLowerCase();

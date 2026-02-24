@@ -34,13 +34,14 @@ h1 {
   font-family: "BentonStrong";
   letter-spacing:.5px;
   text-align:center;
-    margin:5px;
-
+  margin:5px;
 }
+
 h2{
   font-size: 18px;
   margin:5px;
 }
+
 a {
   color: #007194;
   text-decoration: none;
@@ -87,8 +88,7 @@ button.filter {
   cursor: pointer;
   text-align: left;
   max-width: 200px;
-    display: flex;              /* override default button layout */
-
+  display: flex;              /* override default button layout */
 }
 
 button.filter[aria-pressed="true"] {
@@ -116,6 +116,7 @@ input[type="search"] {
 .hidden {
   display: none;
 }
+
 #clearAll{
   /* font-size:16px; */
   margin:10px
@@ -227,6 +228,60 @@ button.filter.subject-colored[disabled] {
 }
 
 /* =========================
+   Checklist filters (NEW)
+   Replaces the filter "buttons" inside #topicBtns/#subtopicBtns/#yearBtns
+========================= */
+.btns {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.check-item {
+  display: grid;
+  grid-template-columns: 16px 1fr auto; /* was 14px; give it a little breathing room */
+  gap: 2px;
+  align-items:center;
+  cursor: pointer;
+  user-select: none;
+  font-family: "Benton";
+  font-size: 12px;
+  line-height: 1;
+}
+
+.check-item input[type="checkbox"] {
+  margin: 0;
+  width: 12px;
+  height: 12px;
+  min-width: 12px;
+  min-height: 12px;
+  box-sizing: border-box;
+  display: block;
+}
+
+.check-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.check-count {
+  color: #666;
+  white-space: nowrap;
+    min-width: 3.2em; /* enough for (99) / (100) etc; tweak if needed */
+  text-align: right;
+}
+
+.check-item.disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.check-item.subject-colored .check-label {
+  color: var(--subject-color, var(--subject-color-default));
+}
+
+/* =========================
    Table
 ========================= */
 thead th{
@@ -237,6 +292,7 @@ thead th{
   /* top: var(--table-header-offset, 0px);
   line-height:1; */
 }
+
 table {
   border-collapse: separate;
   border-spacing:0;
@@ -296,7 +352,7 @@ td.topic-cell {
 
 .chart-seg.a1 {
   /* background:#3995B2; */
-   background: var(--subject-color, var(--subject-color-default)); 
+  background: var(--subject-color, var(--subject-color-default));
 }
 
 .chart-seg.a2 {
@@ -370,13 +426,12 @@ td a {
 
 /* Centered 800px content inside sticky */
 .topbar-inner {
-  max-width: 800px;
   margin: 0 auto;
   padding: 0 0px;        /* side breathing room on small screens */
   display: grid;
   grid-template-rows: auto auto;
   gap: 6px;
-
+    width:800px;
   border-bottom: 3px solid #000;
 }
 
@@ -384,7 +439,6 @@ td a {
   margin-bottom: 0 !important;
   padding:0px;
 }
-
 
 /* =========================
    Print / PDF
@@ -438,12 +492,13 @@ td a {
 <body>
   This is a test, styles in progress.
   <br>Categories and filter counts are real, no real text or values<br>
+
 <div id="filterBar" class="topbar filter-panels compact-sticky">
   <div class="topbar-inner">
     <h1>SCOTUS Polls</h1>
 
     <div class="filters">
-      
+
       <div class="panel topic-panel">
         <h2>Section</h2>
         <div id="topicBtns" class="btns"></div>
@@ -463,8 +518,8 @@ td a {
     <div class="controls">
       <button id="clearAll" class="filter">Reset All Filters</button>
       <!-- <input id="search" type="search" placeholder="Search…" /> -->
-      <div id="count" class="meta"></div> 
-        <button id="downloadPDF" class="filter">Download PDF</button>
+      <div id="count" class="meta"></div>
+      <button id="downloadPDF" class="filter">Download PDF</button>
       <a id="downloadAll" class="filter" href="#" download="full_dataset.csv">
         Download Methodology</a>
     </div>
@@ -670,7 +725,6 @@ Found: ${headersRaw.join(", ")}`
   state.allTopics = uniqueSorted(state.data.map(d => d.topic), false);
   state.allSubtopics = uniqueSorted(state.data.map(d => d.subtopic), false);
 
-  //  updateDownloadLink(); // still works, now exports only kept columns + filters
   clearAll();
 }
 
@@ -679,14 +733,6 @@ Found: ${headersRaw.join(", ")}`
 // =======================
 function passesSearch(d, q) {
   return true;
-  // if (!q) return true;
-  // const hay = [
-  //   d.year, d.topic, d.subtopic,
-  //   d.questionWording, d.ans1Text, d.ans1ValueRaw, d.ans2Text, d.ans2ValueRaw,
-  //   d.linkText, d.linkURL,
-  //   ...Object.values(d.others || {})
-  // ].join(" ").toLowerCase();
-  // return hay.includes(q);
 }
 
 function filterData(filtersOverride = null) {
@@ -736,8 +782,6 @@ function uniqueSorted(values, numericDescIfPossible) {
 // =======================
 // UI rendering
 // =======================
-
-
 function updateTableHeaderOffset() {
   const bar = document.getElementById("filterBar");
   if (!bar) return;
@@ -749,42 +793,60 @@ function updateTableHeaderOffset() {
     .setProperty("--table-header-offset", `${height}px`);
 }
 
-function makeButton(label, count, pressed, disabled, onClick) {
-  const b = document.createElement("button");
-  b.type = "button";
-  b.className = "filter";
-  b.setAttribute("aria-pressed", pressed ? "true" : "false");
-  b.disabled = !!disabled;
+/* =======================
+   Checklist renderer (REPLACES makeButton/renderButtons)
+======================= */
+function makeCheckRow(label, count, checked, disabled, onChange) {
+  const wrap = document.createElement("label");
+  wrap.className = "check-item";
+  if (disabled) wrap.classList.add("disabled");
 
-  // Show counts, but keep label clean
-  b.textContent = `${label} (${count})`;
+  const cb = document.createElement("input");
+  cb.type = "checkbox";
+  cb.checked = !!checked;
+  cb.disabled = !!disabled;
 
-  b.addEventListener("click", onClick);
-  return b;
+  const text = document.createElement("span");
+  text.className = "check-label";
+  text.textContent = label;
+
+  const c = document.createElement("span");
+  c.className = "check-count";
+  c.textContent = `(${count})`;
+
+  cb.addEventListener("change", onChange);
+
+  wrap.appendChild(cb);
+  wrap.appendChild(text);
+  wrap.appendChild(c);
+
+  return wrap;
 }
 
 function renderButtons(container, allValues, dimKey, countsMap) {
+  // NOTE: function name kept the same to minimize changes elsewhere.
+  // It now renders checklist rows instead of <button>.
   container.innerHTML = "";
   const selectedSet = state.filters[dimKey];
 
   for (const v of allValues) {
     const count = countsMap.get(v) || 0;
-    const pressed = selectedSet.has(v);
+    const checked = selectedSet.has(v);
 
-    // If pressed, allow un-pressing even if count is 0 under other filters
-    const disabled = DISABLE_ZERO_COUNT_BUTTONS ? (!pressed && count === 0) : false;
+    // If checked, allow un-checking even if count is 0 under other filters
+    const disabled = DISABLE_ZERO_COUNT_BUTTONS ? (!checked && count === 0) : false;
 
-    const btn = makeButton(v, count, pressed, disabled, () => toggle(dimKey, v));
+    const row = makeCheckRow(v, count, checked, disabled, () => toggle(dimKey, v));
 
-    // ✅ Subject color system: apply ONLY to Topic buttons
+    // ✅ Subject color system: apply ONLY to Topic checklist rows
     if (dimKey === "topic") {
       const c = subjectColor(v);
-      btn.classList.add("subject-colored");
-      btn.style.setProperty("--subject-color", c);
-      btn.setAttribute("data-subject", v);
+      row.classList.add("subject-colored");
+      row.style.setProperty("--subject-color", c);
+      row.setAttribute("data-subject", v);
     }
 
-    container.appendChild(btn);
+    container.appendChild(row);
   }
 }
 
@@ -857,8 +919,6 @@ function makeStackedChartCell(d) {
 }
 
 function isSafeURL(url) {
-  // Avoid javascript: and other weird schemes.
-  // Allow http(s) and relative URLs.
   const u = String(url || "").trim();
   if (!u) return false;
   if (u.startsWith("/")) return true;
@@ -941,7 +1001,7 @@ function update() {
   const topicCounts = countsForDimension("topic");
   const subCounts = countsForDimension("subtopic");
 
-  // Persistent buttons: always render ALL values from full dataset
+  // Persistent filters: always render ALL values from full dataset
   renderButtons(els.yearBtns, state.allYears, "year", yearCounts);
   renderButtons(els.topicBtns, state.allTopics, "topic", topicCounts);
   renderButtons(els.subtopicBtns, state.allSubtopics, "subtopic", subCounts);
@@ -969,10 +1029,8 @@ function clearAll() {
   update();
 }
 
-
 window.addEventListener("resize", updateTableHeaderOffset);
 
-// Font loading can change heights
 if (document.fonts && document.fonts.ready) {
   document.fonts.ready.then(updateTableHeaderOffset);
 }
@@ -982,7 +1040,7 @@ if (document.fonts && document.fonts.ready) {
 // =======================
 async function init() {
   try {
-        updateTableHeaderOffset();  
+    updateTableHeaderOffset();
 
     const res = await fetch(CSV_PATH);
     if (!res.ok) throw new Error(res.statusText);
@@ -993,16 +1051,12 @@ async function init() {
 }
 
 els.clearAll.addEventListener("click", clearAll);
+
 if (els.downloadPDF) {
   els.downloadPDF.addEventListener("click", () => {
     window.print();
   });
 }
-// Search temporarily disabled
-// els.search.oninput = () => {
-//   state.filters.search = els.search.value.toLowerCase();
-//   update();
-// };
 
 init();
 </script>
