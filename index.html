@@ -279,7 +279,7 @@ th {
 /* Make the Topic cell itself colored + slightly stronger */
 td.topic-cell {
   font-family: "Benton";
-  font-size:12px;
+  font-size:13px;
   color: var(--subject-color, var(--subject-color-default));
 }
 
@@ -453,6 +453,8 @@ td a {
    Mobile layout tweaks
 ========================= */
 @media (max-width: 780px) {
+
+  
   /* make filter panels one column */
   .compact-sticky .filters {
     grid-template-columns: 1fr !important;
@@ -510,6 +512,7 @@ td a {
   
 }
 @media (max-width: 780px) {
+  
   /* hide the header on mobile */
   @media (max-width: 780px) {
   table, tbody, tr, td {
@@ -550,6 +553,52 @@ td a {
 }
   /* optional: hide less-important columns on mobile */
   /* th:nth-child(5), td:nth-child(5) { display: none; } */ /* Source */
+}
+@media (max-width: 780px) {
+  /* turn off sticky topbar on mobile */
+  .filter-panels,
+  .compact-sticky {
+    position: static !important;
+    top: auto !important;
+  }
+}
+@media (max-width: 780px) {
+  /* hide download button on mobile */
+  #downloadAll {
+    display: none !important;
+  }
+}
+@media (max-width: 780px) {
+  /* Bigger, more readable table text on mobile */
+  table {
+    font-size: 13px;
+  }
+
+  th, td {
+    font-size: 13px;
+    line-height: 1;
+    padding: 4px 4px; /* a little more touch-friendly */
+  }
+
+  /* Chart title can come up slightly too */
+  .chart-title {
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  /* Legend text */
+  .chart-legend {
+    font-size: 11px;
+  }
+  td a{
+        font-size: 13px;
+  }
+  td.topic-cell {
+  font-family: "Benton";
+  font-size:13px;
+  color: var(--subject-color, var(--subject-color-default));
+}
+
 }
 
 </style>
