@@ -25,7 +25,7 @@
 
 body {
   font-family: "Benton", -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-  margin: 16px;
+  margin: 0px;
 }
 
 h1 {
@@ -445,9 +445,113 @@ td a {
 }
 
 /* Optional: better default paper margins */
-@page {
+/* @page {
   margin: 0.5in;
+} */
+
+/* =========================
+   Mobile layout tweaks
+========================= */
+@media (max-width: 780px) {
+  /* make filter panels one column */
+  .compact-sticky .filters {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* buttons full width so they don't shift/wrap weirdly */
+  .btns {
+    flex-direction: column;
+  }
+
+  button.filter {
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
+  }
+    .panel.year .btns {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .panel.year button.filter {
+    width: auto;
+    min-width: max-content;
+    max-width: none;
+    white-space: nowrap;
+  }
+
+
+  /* tighten table for small screens */
+  table {
+    width: 100%;
+    max-width: none;
+  }
+
+  th, td {
+    padding: 6px;
+    font-size: 12px;
+  }
+
+  /* let the sticky top bar span full viewport width */
+  #filterBar {
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  /* let the inner wrapper also go full width, with side padding */
+  .topbar-inner {
+    max-width: none;
+    width: 100%;
+    margin: 0;
+    padding: 0 12px; /* breathing room */
+    box-sizing: border-box;
+  
 }
+@media (max-width: 780px) {
+  /* hide the header on mobile */
+  @media (max-width: 780px) {
+  table, tbody, tr, td {
+    box-sizing: border-box;
+  }
+}
+  table thead {
+    display: none;
+  }
+
+  /* each row becomes a card */
+  table, tbody, tr, td {
+    display: block;
+    width: 100%;
+  }
+
+  tr {
+    border-bottom: 2px solid #000;
+    padding: 5px 10px 5px 10px;
+  }
+
+  td {
+    border: none;            /* remove row separators inside card */
+    padding: 0px 0;
+  }
+
+  /* labels for each “field” */
+  td:nth-child(1)::before { content: "Year: "; font-family: "BentonStrong"; }
+  td:nth-child(2)::before { content: "Section: "; font-family: "BentonStrong"; }
+  td:nth-child(3)::before { content: "Theme: "; font-family: "BentonStrong"; }
+  td:nth-child(4)::before { content: "Results: "; font-family: "BentonStrong"; display:block; margin-bottom:4px; }
+  td:nth-child(5)::before { content: "Source: "; font-family: "BentonStrong"; }
+
+  /* keep your topic color styling */
+  td.topic-cell {
+    display: block;
+  }
+}
+  /* optional: hide less-important columns on mobile */
+  /* th:nth-child(5), td:nth-child(5) { display: none; } */ /* Source */
+}
+
 </style>
 </head>
 
@@ -456,7 +560,7 @@ td a {
   <br>DO NOT SHARE
 <div id="filterBar" class="topbar filter-panels compact-sticky">
   <div class="topbar-inner">
-    <h1>Collection of Public Opinion Polls on the Supreme Court</h1>
+    <h1>Public Opinion Polls on the Supreme Court</h1>
 
     <div class="filters">
       
