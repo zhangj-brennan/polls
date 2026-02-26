@@ -183,7 +183,7 @@ input[type="search"] {
 /* Row 2: filters */
 .compact-sticky .filters {
   display: grid;
-  grid-template-columns: .6fr 1fr 0.3fr; /* Year narrower */
+  grid-template-columns:  0.18fr .6fr 1fr; /* Year narrower */
   gap: 6px;
   align-items: start;
 }
@@ -195,9 +195,10 @@ input[type="search"] {
 }
 
 .compact-sticky .panel h2 {
-  font-size: 16px;
+  font-size: 10px;
   margin: 0 0 4px;
-  color: #444;
+  color: #000;
+  font-family:"BentonStrong";
   line-height: 1.1;
 }
 
@@ -227,11 +228,15 @@ button.filter.subject-colored {
   background: #fff;
   /* border: 1px solid var(--subject-color, var(--subject-color-default)); */
   color: var(--subject-color, var(--subject-color-default));
+    border: var(--subject-color, var(--subject-color-default)) 1px solid;
+
 }
 
 /* Selected state: strong black outline */
 button.filter.subject-colored[aria-pressed="true"] {
-  outline: 2px solid #000;
+  outline: 2px solid var(--subject-color, var(--subject-color-default));
+  background-color:var(--subject-color, var(--subject-color-default));
+  color:white;
   outline-offset: 0px;
 }
 
@@ -249,6 +254,8 @@ thead th{
   top: var(--thead-offset, 0px); JS will set this */
   z-index: 30;                   /* above rows; below topbar if you want */
   background: #fff;
+  font-size:10px;
+  line-height:1;
   /* top: var(--table-header-offset, 0px);
   line-height:1; */
 }
@@ -260,6 +267,8 @@ table {
   margin-top: 14px;
   margin-left: auto;
   margin-right: auto;
+      table-layout:fixed;
+
 }
 
 th, td {
@@ -269,7 +278,20 @@ th, td {
   vertical-align: top;
   font-size: 13px;
 }
+th, td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Results column should wrap (chart title especially) */
+td:nth-child(4) {
+  overflow: visible;
+  text-overflow: clip;
+}
 
+/* allow chart title to wrap nicely */
+.chart-title {
+  white-space: normal;
+}
 th {
   background: #fff;
   z-index: 5;              /* ← ADD THIS */
@@ -313,6 +335,7 @@ td.topic-cell {
 .chart-seg.a1 {
   /* background:#3995B2; */
    background: var(--subject-color, var(--subject-color-default)); 
+
 }
 
 .chart-seg.a2 {
@@ -485,6 +508,7 @@ td a {
 
   /* tighten table for small screens */
   table {
+    table-layout:fixed;
     width: 100%;
     max-width: none;
   }
@@ -600,7 +624,13 @@ td a {
 }
 
 }
-
+html {
+  scrollbar-gutter: stable;
+  overflow-y:scroll;
+}
+body {
+  overflow-y: scroll;
+}
 </style>
 </head>
 
@@ -612,21 +642,21 @@ td a {
     <h1>Public Opinion Polls on the Supreme Court</h1>
 
     <div class="filters">
-      
+      <div class="panel year">
+        <h2>YEAR</h2>
+        <div id="yearBtns" class="btns"></div>
+      </div>
       <div class="panel topic-panel">
-        <h2>Section</h2>
+        <h2>SECTION</h2>
         <div id="topicBtns" class="btns"></div>
       </div>
 
       <div class="panel">
-        <h2>Theme</h2>
+        <h2>THEME</h2>
         <div id="subtopicBtns" class="btns"></div>
       </div>
 
-      <div class="panel year">
-        <h2>Year</h2>
-        <div id="yearBtns" class="btns"></div>
-      </div>
+      
     </div>
 
     <div class="controls">
@@ -643,13 +673,20 @@ td a {
 </div>
 
 <table id="table" class="hidden">
+    <colgroup>
+    <col style="width:40px" />
+    <col style="width:120px" />
+    <col style="width:120px" />
+    <col style="width:260px" />
+    <col style="width:70px" />
+  </colgroup>
   <thead>
     <tr>
-      <th style="width:40px">Year</th>
-      <th style="width:120px">Section</th>
-      <th style="width:120px">Theme</th>
-      <th style="width:260px">Results</th> <!-- smaller bar column -->
-      <th style="width:70px">Source</th>
+      <th style="width:40px">YEAR</th>
+      <th style="width:120px">SECTION</th>
+      <th style="width:120px">THEME</th>
+      <th style="width:260px">RESULTS</th> <!-- smaller bar column -->
+      <th style="width:70px">SOURCE</th>
     </tr>
   </thead>
   <tbody id="tbody"></tbody>
@@ -676,8 +713,8 @@ const KEEP_OTHER_COLUMNS = [
 // =======================
 const SUBJECT_COLORS = {
   "Public opinion on ethics reform": "#3995B2",
-  "Public opinion on life tenure": "#007194",
-  "Public opinion of the Supreme Court as an institution": "#00415B"
+  "Public opinion on life tenure": "#00415B",
+  "Public opinion of the Supreme Court as an institution": "#9E0B0F"
 };
 const DEFAULT_SUBJECT_COLOR = "#777";
 
