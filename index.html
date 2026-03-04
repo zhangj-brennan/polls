@@ -17,10 +17,14 @@
   font-family: "BentonStrong";
   src: url("Benton Sans/Benton Sans Bold.otf");
 }
+@font-face {
+  font-family: "BentonMedium";
+  src: url("Benton Sans/Benton Sans Medium.otf");
+}
 
 :root {
   /* Fallback used when a topic is not in SUBJECT_COLORS */
-  --subject-color-default: #777;
+  --subject-color-default: #000;
 }
 
 body {
@@ -62,7 +66,7 @@ a {
 }
 
 .panel {
-  font-family: "Benton";
+  font-family: "BentonStrong";
   /* border: 1px solid #ddd; */
   border-radius: 0px;
   padding: 12px;
@@ -71,7 +75,7 @@ a {
 .panel h2 {
   font-size: 14px;
   margin: 0 0 8px;
-  color: #444;
+  color: #000;
 }
 
 .btns {
@@ -91,7 +95,7 @@ a {
    Controls
 ========================= */
 button.filter {
-  
+
   border: 1px solid #000;
   background: #fff;
   padding: 6px 12px;
@@ -122,7 +126,7 @@ input[type="search"] {
 
 .meta {
   font-size: 12px;
-  color: #666;
+  color: #000;
 }
 
 .hidden {
@@ -130,10 +134,14 @@ input[type="search"] {
 }
 #clearAll{
   /* font-size:16px; */
-  margin:10px
+  margin:10px;
+    font-family: "BentonMedium";
+
 }
 #downloadAll{
   border:1px solid black;
+    font-family: "BentonMedium";
+
 }
 
 /* =========================
@@ -207,7 +215,7 @@ input[type="search"] {
 }
 
 .compact-sticky .panel .filter {
-  font-family: "Benton";
+  font-family: "BentonMedium";
   padding: 6px 6px;
   font-size: 12px;
   line-height: 1.25;
@@ -635,8 +643,6 @@ body {
 </head>
 
 <body>
-  This is a test, styles in progress/pending approval. 
-  <br>DO NOT SHARE
 <div id="filterBar" class="topbar filter-panels compact-sticky">
   <div class="topbar-inner">
     <h1>Public Opinion Polls on the Supreme Court</h1>
