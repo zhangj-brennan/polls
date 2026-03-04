@@ -125,7 +125,8 @@ input[type="search"] {
 }
 
 .meta {
-  font-size: 12px;
+      font-family: "BentonMedium";
+font-size: 12px;
   color: #000;
 }
 
@@ -323,7 +324,7 @@ td.topic-cell {
 
 .chart-title {
   font-family: "Benton";
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.2;
 }
 
@@ -354,7 +355,7 @@ td.topic-cell {
 .chart-legend {
   display: flex;
   gap: 10px;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.25;
   color: #111;
   flex-wrap: wrap; /* wraps on narrow screens */
@@ -384,7 +385,7 @@ td.topic-cell {
 /* Optional polish for link column */
 td a {
   font-family: "Benton";
-  font-size: 12px;
+  font-size: 13px;
   text-decoration: underline;
 }
 
@@ -523,7 +524,7 @@ td a {
 
   th, td {
     padding: 6px;
-    font-size: 12px;
+    font-size: 32px;
   }
 
   /* let the sticky top bar span full viewport width */
@@ -543,14 +544,74 @@ td a {
     box-sizing: border-box;
   
 }
+}
+/* =========================
+   Mobile layout tweaks
+========================= */
 @media (max-width: 780px) {
-  
-  /* hide the header on mobile */
-  @media (max-width: 780px) {
+
+  /* make filter panels one column */
+  .compact-sticky .filters {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* buttons full width so they don't shift/wrap weirdly */
+  .btns {
+    flex-direction: column;
+  }
+
+  button.filter {
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
+  }
+
+  .panel.year .btns {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .panel.year button.filter {
+    width: auto;
+    min-width: max-content;
+    max-width: none;
+    white-space: nowrap;
+  }
+
+  /* tighten table for small screens */
+  table {
+    table-layout: fixed;
+    width: 100%;
+    max-width: none;
+  }
+
+  th, td {
+    padding: 6px;
+    font-size: 12px;
+  }
+
+  /* let the sticky top bar span full viewport width */
+  #filterBar {
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  /* let the inner wrapper also go full width, with side padding */
+  .topbar-inner {
+    max-width: none;
+    width: 100%;
+    margin: 0;
+    padding: 0 12px; /* breathing room */
+    box-sizing: border-box;
+  }
+
+  /* hide table header on mobile */
   table, tbody, tr, td {
     box-sizing: border-box;
   }
-}
+
   table thead {
     display: none;
   }
@@ -582,26 +643,37 @@ td a {
   td.topic-cell {
     display: block;
   }
-}
+
   /* optional: hide less-important columns on mobile */
   /* th:nth-child(5), td:nth-child(5) { display: none; } */ /* Source */
 }
+
+/* =========================
+   Mobile: turn off sticky topbar (your original intent)
+   NOTE: this will make sticky "not work" under 780px by design.
+========================= */
 @media (max-width: 780px) {
-  /* turn off sticky topbar on mobile */
   .filter-panels,
   .compact-sticky {
     position: static !important;
     top: auto !important;
   }
 }
+
+/* =========================
+   Mobile: hide download button
+========================= */
 @media (max-width: 780px) {
-  /* hide download button on mobile */
   #downloadAll {
     display: none !important;
   }
 }
+
+/* =========================
+   Mobile: bigger / more readable text tweaks
+========================= */
 @media (max-width: 780px) {
-  /* Bigger, more readable table text on mobile */
+
   table {
     font-size: 13px;
   }
@@ -609,35 +681,44 @@ td a {
   th, td {
     font-size: 13px;
     line-height: 1;
-    padding: 4px 4px; /* a little more touch-friendly */
+    padding: 4px 4px;
   }
 
-  /* Chart title can come up slightly too */
   .chart-title {
     font-size: 13px;
     line-height: 1.35;
   }
 
-  /* Legend text */
   .chart-legend {
     font-size: 11px;
   }
-  td a{
-        font-size: 13px;
+
+  td a {
+    font-size: 13px;
   }
+
   td.topic-cell {
-  font-family: "Benton";
-  font-size:13px;
-  color: var(--subject-color, var(--subject-color-default));
+    font-family: "Benton";
+    font-size: 13px;
+    color: var(--subject-color, var(--subject-color-default));
+  }
 }
 
+
+/* ===== Sticky top controls: hard override (desktop + mobile) ===== */
+#filterBar{
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 9999;
+  background: #fff;
 }
 html {
   scrollbar-gutter: stable;
   overflow-y:scroll;
 }
 body {
-  overflow-y: scroll;
+  overflow-y: visible;
 }
 </style>
 </head>
